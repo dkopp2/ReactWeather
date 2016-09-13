@@ -26542,20 +26542,38 @@
 
 	var React = __webpack_require__(8);
 
+	var _require = __webpack_require__(166);
+
+	var Link = _require.Link;
+
 	// stateless functional component (no state)
+
 	var About = function About(props) {
 	  return React.createElement(
 	    'div',
 	    null,
 	    React.createElement(
-	      'h3',
-	      null,
+	      'h1',
+	      { className: 'text-center' },
 	      'About'
 	    ),
 	    React.createElement(
 	      'p',
 	      null,
-	      'Welcome to the About page'
+	      'This app is for getting the temperature and weather conditions of a given city'
+	    ),
+	    React.createElement(
+	      'ol',
+	      null,
+	      React.createElement(
+	        'li',
+	        null,
+	        React.createElement(
+	          Link,
+	          { to: 'https://github.com/dkopp2/ReactWeather' },
+	          'See us on GitHub'
+	        )
+	      )
 	    )
 	  );
 	};

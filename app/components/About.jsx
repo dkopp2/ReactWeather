@@ -1,11 +1,17 @@
 var React = require('react');
+var {Link} = require('react-router');
 
 // stateless functional component (no state)
 var About = (props) => {
   return (
     <div>
-      <h3>About</h3>
-      <p>Welcome to the About page</p>
+      <h1 className="text-center">About</h1>
+      <p>This app is for getting the temperature and weather conditions of a given city</p>
+      <ol>
+        <li>
+            <Link to='https://github.com/dkopp2/ReactWeather'>See us on GitHub</Link>
+        </li>
+      </ol>
     </div>
   );
 };
