@@ -9,7 +9,7 @@ var About = (props) => {
       <p>This app is for getting the temperature and weather conditions of a given city</p>
       <ol>
         <li>
-            <Link to='https://github.com/dkopp2/ReactWeather'>See us on GitHub</Link>
+            <a href='https://github.com/dkopp2/ReactWeather'>See us on GitHub</a>
         </li>
       </ol>
     </div>

@@ -26569,8 +26569,8 @@
 	        'li',
 	        null,
 	        React.createElement(
-	          Link,
-	          { to: 'https://github.com/dkopp2/ReactWeather' },
+	          'a',
+	          { href: 'https://github.com/dkopp2/ReactWeather' },
 	          'See us on GitHub'
 	        )
 	      )
