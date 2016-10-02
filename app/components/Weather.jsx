@@ -5,73 +5,69 @@ var ErrorModal = require('ErrorModal');
 var openWeatherMap = require('openWeatherMap');
 
 var Weather = React.createClass({
-  getDefaultProps: function() {
-    return {
-      locationName: 'Somewhere out there, beneath the pale moonlight'
-      , temp: 88
-    };
-  }
-  , getInitialState: function() {
-      var {locationName, temp} = this.props;
-      console.log(locationName);
-      return {
-        locationName: locationName
-        , temp: this.props.temp
-        , isLoading: false
-      };
-  }
-  , handleSearch: function (locationName) {
-    var that = this;
+    getDefaultProps: function() {
+        return {locationName: 'Somewhere out there, beneath the pale moonlight', temp: 88};
+    },
+    getInitialState: function() {
+        var {locationName, temp} = this.props;
+        console.log(locationName);
+        return {locationName: locationName, temp: this.props.temp, isLoading: false};
+    },
+    handleSearch: function(locationName) {
+        var that = this;
 
-    this.setState({isLoading: true
-    , errorMessage: undefined});
+        this.setState({isLoading: true, errorMessage: undefined, location: undefined, temp: undefined});
 
-    openWeatherMap.getTemp(locationName).then(
-      function (temp) {
-        that.setState({
-          locationName: locationName
-          , temp: temp
-          , isLoading: false
+        openWeatherMap.getTemp(locationName).then(function(temp) {
+            that.setState({locationName: locationName, temp: temp, isLoading: false});
+        }, function(e) {
+            that.setState({isLoading: false, errorMessage: e.message});
+            alert(errorMessage);
+
         });
+
+    },
+    componentDidMount: function() {
+        var location = this.props.location.query.location;
+
+        if (location && location.length > 0) {
+            this.handleSearch(location);
+            window.location.hash = '#/';
+        }
+    },
+    componentWillReceiveProps: function(newProps) {
+      var location = newProps.location.query.location;
+
+      if (location && location.length > 0) {
+          this.handleSearch(location);
+          window.location.hash = '#/';
       }
-      , function (e) {
-        that.setState({
-          isLoading: false
-          , errorMessage:e.message
-        });
-        alert(errorMessage);
+    },
+    render: function() {
+        var {temp, locationName, isLoading, errorMessage} = this.state;
 
-      });
+        function renderMessage() {
+            if (isLoading) {
+                return <h3 className="text-center">Fetching weather...</h3>;
+            } else if (temp && locationName) {
+                return <WeatherMessage locationName={locationName} temp={temp}/>
+            }
+        }
 
-  }
-  , render: function() {
-    var {temp, locationName, isLoading, errorMessage} = this.state;
-
-    function renderMessage() {
-      if (isLoading) {
-        return <h3 className="text-center">Fetching weather...</h3>;
-      } else if (temp && locationName) {
-        return <WeatherMessage locationName={locationName} temp={temp}  />
-      }
-    }
-
-    function renderError() {
-      if (typeof errorMessage === 'string') {
+        function renderError() {
+            if (typeof errorMessage === 'string') {
+                return (<ErrorModal message={errorMessage}/>)
+            }
+        }
+        // only use one root component
         return (
-          <ErrorModal message={errorMessage}/>
-        )
-      }
+            <div>
+                <h1 className="text-center page-title">Get Weather</h1>
+                <WeatherForm onSearch={this.handleSearch}/> {renderMessage()}
+                {renderError()}
+            </div>
+        );
     }
-    // only use one root component
-    return (
-      <div>
-        <h1 className="text-center page-title">Get Weather</h1>
-        <WeatherForm onSearch={this.handleSearch} />
-        {renderMessage()}
-        {renderError()}
-      </div>
-    );
-  }
 });
 
 module.exports = Weather;

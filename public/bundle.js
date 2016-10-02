@@ -25526,7 +25526,14 @@
 
 	  onSearch: function onSearch(e) {
 	    e.preventDefault();
-	    alert("Not yet wired up");
+
+	    var location = this.refs.search.value;
+	    var encodedLocation = encodeURIComponent(location);
+
+	    if (location.length > 0) {
+	      this.refs.search.value = '';
+	      window.location.hash = '#/?location=' + encodedLocation;
+	    }
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -25584,7 +25591,7 @@
 	            React.createElement(
 	              'li',
 	              null,
-	              React.createElement('input', { type: 'search', placeholder: 'Search weather by city' })
+	              React.createElement('input', { type: 'search', placeholder: 'Search weather by city', ref: 'search' })
 	            ),
 	            React.createElement(
 	              'li',
@@ -25613,85 +25620,87 @@
 	var openWeatherMap = __webpack_require__(235);
 
 	var Weather = React.createClass({
-	  displayName: 'Weather',
+	    displayName: 'Weather',
 
-	  getDefaultProps: function getDefaultProps() {
-	    return {
-	      locationName: 'Somewhere out there, beneath the pale moonlight',
-	      temp: 88
-	    };
-	  },
-	  getInitialState: function getInitialState() {
-	    var _props = this.props;
-	    var locationName = _props.locationName;
-	    var temp = _props.temp;
+	    getDefaultProps: function getDefaultProps() {
+	        return { locationName: 'Somewhere out there, beneath the pale moonlight', temp: 88 };
+	    },
+	    getInitialState: function getInitialState() {
+	        var _props = this.props;
+	        var locationName = _props.locationName;
+	        var temp = _props.temp;
 
-	    console.log(locationName);
-	    return {
-	      locationName: locationName,
-	      temp: this.props.temp,
-	      isLoading: false
-	    };
-	  },
-	  handleSearch: function handleSearch(locationName) {
-	    var that = this;
+	        console.log(locationName);
+	        return { locationName: locationName, temp: this.props.temp, isLoading: false };
+	    },
+	    handleSearch: function handleSearch(locationName) {
+	        var that = this;
 
-	    this.setState({ isLoading: true,
-	      errorMessage: undefined });
+	        this.setState({ isLoading: true, errorMessage: undefined, location: undefined, temp: undefined });
 
-	    openWeatherMap.getTemp(locationName).then(function (temp) {
-	      that.setState({
-	        locationName: locationName,
-	        temp: temp,
-	        isLoading: false
-	      });
-	    }, function (e) {
-	      that.setState({
-	        isLoading: false,
-	        errorMessage: e.message
-	      });
-	      alert(errorMessage);
-	    });
-	  },
-	  render: function render() {
-	    var _state = this.state;
-	    var temp = _state.temp;
-	    var locationName = _state.locationName;
-	    var isLoading = _state.isLoading;
-	    var errorMessage = _state.errorMessage;
+	        openWeatherMap.getTemp(locationName).then(function (temp) {
+	            that.setState({ locationName: locationName, temp: temp, isLoading: false });
+	        }, function (e) {
+	            that.setState({ isLoading: false, errorMessage: e.message });
+	            alert(errorMessage);
+	        });
+	    },
+	    componentDidMount: function componentDidMount() {
+	        var location = this.props.location.query.location;
+
+	        if (location && location.length > 0) {
+	            this.handleSearch(location);
+	            window.location.hash = '#/';
+	        }
+	    },
+	    componentWillReceiveProps: function componentWillReceiveProps(newProps) {
+	        var location = newProps.location.query.location;
+
+	        if (location && location.length > 0) {
+	            this.handleSearch(location);
+	            window.location.hash = '#/';
+	        }
+	    },
+	    render: function render() {
+	        var _state = this.state;
+	        var temp = _state.temp;
+	        var locationName = _state.locationName;
+	        var isLoading = _state.isLoading;
+	        var errorMessage = _state.errorMessage;
 
 
-	    function renderMessage() {
-	      if (isLoading) {
+	        function renderMessage() {
+	            if (isLoading) {
+	                return React.createElement(
+	                    'h3',
+	                    { className: 'text-center' },
+	                    'Fetching weather...'
+	                );
+	            } else if (temp && locationName) {
+	                return React.createElement(WeatherMessage, { locationName: locationName, temp: temp });
+	            }
+	        }
+
+	        function renderError() {
+	            if (typeof errorMessage === 'string') {
+	                return React.createElement(ErrorModal, { message: errorMessage });
+	            }
+	        }
+	        // only use one root component
 	        return React.createElement(
-	          'h3',
-	          { className: 'text-center' },
-	          'Fetching weather...'
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                { className: 'text-center page-title' },
+	                'Get Weather'
+	            ),
+	            React.createElement(WeatherForm, { onSearch: this.handleSearch }),
+	            ' ',
+	            renderMessage(),
+	            renderError()
 	        );
-	      } else if (temp && locationName) {
-	        return React.createElement(WeatherMessage, { locationName: locationName, temp: temp });
-	      }
 	    }
-
-	    function renderError() {
-	      if (typeof errorMessage === 'string') {
-	        return React.createElement(ErrorModal, { message: errorMessage });
-	      }
-	    }
-	    // only use one root component
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement(
-	        'h1',
-	        { className: 'text-center page-title' },
-	        'Get Weather'
-	      ),
-	      React.createElement(WeatherForm, { onSearch: this.handleSearch }),
-	      renderMessage(),
-	      renderError()
-	    );
-	  }
 	});
 
 	module.exports = Weather;
